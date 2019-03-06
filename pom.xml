@@ -30,6 +30,7 @@
         <module>redant-core</module>
         <module>redant-cluster</module>
         <module>redant-example</module>
+        <module>redant-core-imitation</module>
     </modules>
 
     <dependencyManagement>
