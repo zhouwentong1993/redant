@@ -6,8 +6,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.util.concurrent.FastThreadLocal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,8 +14,6 @@ import java.util.Set;
  * @author houyi
  **/
 public class RedantContext {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RedantContext.class);
 
     /**
      * 使用FastThreadLocal替代JDK自带的ThreadLocal以提升并发性能

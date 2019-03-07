@@ -29,25 +29,25 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
  *
  * By default exceptions are logged to Netty internal LOGGER. You may need to override
  * {@link #onUnknownMessage(Object)}, {@link #onBadClient(Throwable)}, and
- * {@link #onBadServer(Throwable)} to log to more suitable places.
+ * {@link #onBadServer(Throwable)} to LOGGER to more suitable places.
  */
 @Sharable
 public class BadClientSilencer extends SimpleChannelInboundHandler<Object> {
-    private static final InternalLogger log = InternalLoggerFactory.getInstance(BadClientSilencer.class);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(BadClientSilencer.class);
 
-    /** Logs to Netty internal LOGGER. Override this method to log to other places if you want. */
+    /** Logs to Netty internal LOGGER. Override this method to LOGGER to other places if you want. */
     protected void onUnknownMessage(Object msg) {
-        log.warn("Unknown msg: " + msg);
+        LOGGER.warn("Unknown msg: " + msg);
     }
 
-    /** Logs to Netty internal LOGGER. Override this method to log to other places if you want. */
+    /** Logs to Netty internal LOGGER. Override this method to LOGGER to other places if you want. */
     protected void onBadClient(Throwable e) {
-        log.warn("Caught exception (maybe client is bad)", e);
+        LOGGER.warn("Caught exception (maybe client is bad)", e);
     }
 
-    /** Logs to Netty internal LOGGER. Override this method to log to other places if you want. */
+    /** Logs to Netty internal LOGGER. Override this method to LOGGER to other places if you want. */
     protected void onBadServer(Throwable e) {
-        log.warn("Caught exception (maybe server is bad)", e);
+        LOGGER.warn("Caught exception (maybe server is bad)", e);
     }
 
     //----------------------------------------------------------------------------

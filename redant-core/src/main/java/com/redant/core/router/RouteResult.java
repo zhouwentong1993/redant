@@ -116,13 +116,13 @@ public class RouteResult<T> {
         String value = pathParams.get(name);
 
         if (values == null) {
-            return (value == null) ? Collections.<String>emptyList() : Collections.singletonList(value);
+            return (value == null) ? Collections.emptyList() : Collections.singletonList(value);
         }
 
         if (value == null) {
             return Collections.unmodifiableList(values);
         } else {
-            List<String> aggregated = new ArrayList<String>(values.size() + 1);
+            List<String> aggregated = new ArrayList<>(values.size() + 1);
             aggregated.addAll(values);
             aggregated.add(value);
             return Collections.unmodifiableList(aggregated);
@@ -131,6 +131,6 @@ public class RouteResult<T> {
 
     @Override
     public String toString() {
-        return "{target:"+target+",decodedPath:"+decodedPath+",queryParams:"+queryParams+"}";
+        return "{target:" + target + ",decodedPath:" + decodedPath + ",queryParams:" + queryParams + "}";
     }
 }

@@ -21,29 +21,24 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Router that doesn't contain information about HTTP request methods and route
  * matching orders.
  */
 final class OrderlessRouter<T> {
-    private static final InternalLogger log = InternalLoggerFactory.getInstance(OrderlessRouter.class);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(OrderlessRouter.class);
 
     /**
      * A path pattern can only point to one target
       */
-    private final Map<PathPattern, T> routes = new HashMap<PathPattern, T>();
+    private final Map<PathPattern, T> routes = new HashMap<>();
 
     /**
      * Reverse index to create reverse routes fast (a target can have multiple path patterns)
       */
-    private final Map<T, Set<PathPattern>> reverseRoutes = new HashMap<T, Set<PathPattern>>();
+    private final Map<T, Set<PathPattern>> reverseRoutes = new HashMap<>();
 
     //--------------------------------------------------------------------------
 
@@ -60,19 +55,17 @@ final class OrderlessRouter<T> {
      */
     public OrderlessRouter<T> addRoute(String pathPattern, T target) {
         PathPattern p = new PathPattern(pathPattern);
-        if (routes.containsKey(p)) {
-            return this;
+        if (!routes.containsKey(p)) {
+            routes.put(p, target);
+            addReverseRoute(target, p);
         }
-
-        routes.put(p, target);
-        addReverseRoute(target, p);
         return this;
     }
 
     private void addReverseRoute(T target, PathPattern pathPattern) {
         Set<PathPattern> patterns = reverseRoutes.get(target);
         if (patterns == null) {
-            patterns = new HashSet<PathPattern>();
+            patterns = new HashSet<>();
             patterns.add(pathPattern);
             reverseRoutes.put(target, patterns);
         } else {
@@ -120,12 +113,12 @@ final class OrderlessRouter<T> {
      */
     public RouteResult<T> route(String uri, String decodedPath, String[] pathTokens) {
         // Optimize: reuse requestPathTokens and pathParams in the loop
-        Map<String, String> pathParams = new HashMap<String, String>();
+        Map<String, String> pathParams = new HashMap<>();
         for (Map.Entry<PathPattern, T> entry : routes.entrySet()) {
             PathPattern pattern = entry.getKey();
             if (pattern.match(pathTokens, pathParams)) {
                 T target = entry.getValue();
-                return new RouteResult<T>(uri, decodedPath, pathParams, Collections.<String, List<String>>emptyMap(), target);
+                return new RouteResult<>(uri, decodedPath, pathParams, Collections.emptyMap(), target);
             }
 
             // Reset for the next try
@@ -139,7 +132,7 @@ final class OrderlessRouter<T> {
      * Checks if there's any matching route.
      */
     public boolean anyMatched(String[] requestPathTokens) {
-        Map<String, String> pathParams = new HashMap<String, String>();
+        Map<String, String> pathParams = new HashMap<>();
         for (PathPattern pattern : routes.keySet()) {
             if (pattern.match(requestPathTokens, pathParams)) {
                 return true;
@@ -181,7 +174,7 @@ final class OrderlessRouter<T> {
             throw new IllegalArgumentException("Missing value for param: " + params[params.length - 1]);
         }
 
-        Map<Object, Object> map = new HashMap<Object, Object>(params.length / 2);
+        Map<Object, Object> map = new HashMap<>(params.length / 2);
         for (int i = 0; i < params.length; i += 2) {
             String key = params[i].toString();
             String value = params[i + 1].toString();
@@ -205,7 +198,7 @@ final class OrderlessRouter<T> {
             int minQueryParams = Integer.MAX_VALUE;
 
             boolean matched = true;
-            Set<String> usedKeys = new HashSet<String>();
+            Set<String> usedKeys = new HashSet<>();
 
             for (PathPattern pattern : patterns) {
                 matched = true;
@@ -270,7 +263,7 @@ final class OrderlessRouter<T> {
 
             return bestCandidate;
         } catch (UnsupportedEncodingException e) {
-            log.warn("Params can't be UTF-8 encoded: " + params);
+            LOGGER.warn("Params can't be UTF-8 encoded: " + params);
             return null;
         }
     }

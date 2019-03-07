@@ -23,9 +23,11 @@ package com.redant.core.router;
  * Routes in "first" are matched first, then in "other", then in "last".
  */
 final class MethodlessRouter<T> {
-    private final OrderlessRouter<T> first = new OrderlessRouter<T>();
-    private final OrderlessRouter<T> other = new OrderlessRouter<T>();
-    private final OrderlessRouter<T> last = new OrderlessRouter<T>();
+
+    // 为什么要做成三个？匹配顺序？
+    private final OrderlessRouter<T> first = new OrderlessRouter<>();
+    private final OrderlessRouter<T> other = new OrderlessRouter<>();
+    private final OrderlessRouter<T> last = new OrderlessRouter<>();
 
     //--------------------------------------------------------------------------
 

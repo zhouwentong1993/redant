@@ -140,10 +140,10 @@ import java.util.Set;
  */
 public class Router<T> {
     private final Map<HttpMethod, MethodlessRouter<T>> routers =
-            new HashMap<HttpMethod, MethodlessRouter<T>>();
+            new HashMap<>();
 
     private final MethodlessRouter<T> anyMethodRouter =
-            new MethodlessRouter<T>();
+            new MethodlessRouter<>();
 
     private T notFound;
 
@@ -222,14 +222,7 @@ public class Router<T> {
         if (method == null) {
             return anyMethodRouter;
         }
-
-        MethodlessRouter<T> r = routers.get(method);
-        if (r == null) {
-            r = new MethodlessRouter<T>();
-            routers.put(method, r);
-        }
-
-        return r;
+        return routers.computeIfAbsent(method, key -> new MethodlessRouter<>());
     }
 
     //--------------------------------------------------------------------------

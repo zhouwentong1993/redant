@@ -33,6 +33,8 @@ import java.util.Map;
  * {@code ["constant1", ":variable", "constant2", ":*"]}
  */
 final class PathPattern {
+
+
     public static String removeSlashesAtBothEnds(String path) {
         ObjectUtil.checkNotNull(path, "path");
 

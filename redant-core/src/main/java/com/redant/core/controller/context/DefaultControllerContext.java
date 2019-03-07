@@ -33,7 +33,7 @@ public class DefaultControllerContext implements ControllerContext {
     /**
      * RouterContext的实例(单例)
      */
-    private volatile static DefaultControllerContext context;
+    private static volatile DefaultControllerContext context;
 
     private DefaultControllerContext(){
         routerContext = DefaultRouterContext.getInstance();
@@ -60,7 +60,7 @@ public class DefaultControllerContext implements ControllerContext {
     @Override
     public ControllerProxy getProxy(HttpMethod method, String uri) {
         RouteResult<RenderType> routeResult = routerContext.getRouteResult(method, uri);
-        if(routeResult==null){
+        if (routeResult == null) {
             return null;
         }
         // 获取代理
