@@ -4,7 +4,7 @@ import com.wentong.core.exception.CommonException;
 
 public final class ExceptionUtils {
 
-    public void warring(String message) {
+    public static void warring(String message) {
         throw new CommonException(message);
     }
 }

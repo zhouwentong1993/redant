@@ -6,6 +6,7 @@ import com.wentong.core.annotations.Bean;
 import com.wentong.core.controller.HelloController;
 import com.wentong.core.init.InitFunc;
 import com.wentong.core.utils.CommonUtils;
+import com.wentong.core.utils.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +14,18 @@ import org.slf4j.LoggerFactory;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class DefaultBeanContext implements BeanContext, InitFunc {
 
-    private DefaultBeanContext(){}
+    private DefaultBeanContext() {
+    }
 
     private static DefaultBeanContext instance = new DefaultBeanContext();
 
@@ -53,6 +57,7 @@ public class DefaultBeanContext implements BeanContext, InitFunc {
     public void init() {
         LOGGER.info("init class start ……");
         scanAllBeans();
+        injectFields();
         LOGGER.info("init class end ……");
     }
 
@@ -80,12 +85,49 @@ public class DefaultBeanContext implements BeanContext, InitFunc {
         }
     }
 
-    private void injectField() {
-        for (Object object : objectContainer.values()) {
-
+    private void injectFields() {
+        for (Object bean : objectContainer.values()) {
+            injectViaField(bean);
+            injectViaSetter(bean);
         }
     }
 
+
+    /**
+     * 通过字段注入
+     */
+    private void injectViaField(Object bean) {
+        Field[] declaredFields = bean.getClass().getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            Autowired autowired = declaredField.getAnnotation(Autowired.class);
+            if (autowired != null) {
+                String name = autowired.name();
+                if (StringUtils.isNotBlank(name)) {
+                    Object value = objectContainer.get(name);
+                    Objects.requireNonNull(value);
+                    setValueOfField(declaredField, bean, value);
+                } else {
+                    Class<?> type = declaredField.getType();
+                    Object value = objectContainer.get(type.getName());
+                    Objects.requireNonNull(value);
+                    setValueOfField(declaredField, bean, value);
+                }
+            }
+        }
+    }
+
+    private void setValueOfField(Field field, Object bean, Object param) {
+        field.setAccessible(true);
+        try {
+            field.set(bean, param);
+        } catch (IllegalAccessException e) {
+            ExceptionUtils.warring("Can not autowired class:" + bean.getClass().getName());
+        }
+    }
+
+    /**
+     * 通过 setter 方法注入
+     */
     private void injectViaSetter(Object bean) {
         try {
             PropertyDescriptor[] descriptors = Introspector.getBeanInfo(bean.getClass()).getPropertyDescriptors();
@@ -114,7 +156,7 @@ public class DefaultBeanContext implements BeanContext, InitFunc {
                 }
             }
         } catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            ExceptionUtils.warring("exception thrown on inject vir setter,bean:" + bean);
         }
 
     }
@@ -132,9 +174,10 @@ public class DefaultBeanContext implements BeanContext, InitFunc {
 
     public static void main(String[] args) {
         DefaultBeanContext objectDefaultBeanContext = new DefaultBeanContext();
-        objectDefaultBeanContext.scanAllBeans();
+        objectDefaultBeanContext.init();
         Object helloService = objectDefaultBeanContext.getBean("test");
         HelloController helloController = objectDefaultBeanContext.getBean("com.wentong.core.controller.HelloController", HelloController.class);
+        System.out.println(helloController);
     }
 
 }
