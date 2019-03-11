@@ -37,7 +37,7 @@ public final class InitExecutor {
                         Constructor<?> constructor = cls.getDeclaredConstructor();
                         constructor.setAccessible(true);
                         InitFunc initFunc = (InitFunc)constructor.newInstance();
-                        LOGGER.info("[InitExecutor] found InitFunc: " + initFunc.getClass().getCanonicalName());
+                        LOGGER.info("[InitExecutor] found InitFunc:{} " ,initFunc.getClass().getCanonicalName());
                         insertSorted(initList, initFunc);
                     }
                 }
